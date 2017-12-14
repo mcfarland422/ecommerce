@@ -1,11 +1,27 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 class NavBar extends Component{
 	constructor(){
 		super();
 	}
+
+	componentWillReceiveProps(newProps){
+		if(newProps.auth.name !== undefined){
+			// the user is logged in
+		}
+	}
+
 	render(){
+		if(newProps.auth.name !== undefined){
+			// the user is logged in
+			var rightMenuBar = [
+				<li className="">Welcome, {this.props.auth.name}</li>
+				<li><Link to="/cart">(0) items in your cart | ($000)</Link></li>
+				<li><Link to="/logout">Logout</Link></li>
+			]
+		}
 		return(
 			<div id="navbar">
 				<nav className="navbar navbar-fixed-top">
@@ -36,4 +52,11 @@ class NavBar extends Component{
 	}
 }
 
-export default NavBar;
+function mapStateToProps(state){
+	//state = RootReducer
+	return{
+		auth: state.auth
+	}
+}
+
+export default connect(mapStateToProps)(NavBar);
