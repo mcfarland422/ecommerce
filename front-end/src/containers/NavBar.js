@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import GetProductLines from '../actions/GetProductLines';
+import {bindActionCreators} from 'redux';
 
 class NavBar extends Component{
 	constructor(){
@@ -8,7 +10,7 @@ class NavBar extends Component{
 	}
 
 	componentDidMount(){
-
+		this.props.getProductLines();
 	}
 
 	componentWillReceiveProps(newProps){
@@ -19,17 +21,18 @@ class NavBar extends Component{
 		if(this.props.auth.name !== undefined){
 			// the user is logged in
 			var rightMenuBar = [
-				<li className="">Welcome, {this.props.auth.name}</li>,
-				<li><Link to="/cart">(0) items in your cart | ($000)</Link></li>,
-				<li><Link to="/logout">Logout</Link></li>
+				<li key={1} className="">Welcome, {this.props.auth.name}</li>,
+				<li key={2}><Link to="/cart">(0) items in your cart | ($000)</Link></li>,
+				<li key={3}><Link to="/logout">Logout</Link></li>
 			]
 		}else{
 			var rightMenuBar = [
-			    <li><Link to="/login">Sign in</Link> or <Link to="/register">Create an account</Link></li>,
-			    <li>(0) items in cart | ($0.00)</li>
+			    <li key={1}><Link to="/login">Sign in</Link> or <Link to="/register">Create an account</Link></li>,
+			    <li key={2}>(0) items in cart | ($0.00)</li>
 			]
 		}
 		console.log(this.props.auth);
+		console.log(this.props.productLines);
 		return(
 			<div id="navbar">
 				<nav className="navbar navbar-fixed-top">
@@ -63,7 +66,8 @@ class NavBar extends Component{
 function mapStateToProps(state){
 	// state = RootReducer
 	return{
-		auth: state.auth
+		auth: state.auth,
+		productLines: state.pl
 	}
 }
 
@@ -73,5 +77,5 @@ function mapDispatchToProps(dispatch){
 	},dispatch);
 }
 
-export default connect(mapStateToProps)(NavBar);
+export default connect(mapStateToProps,mapDispatchToProps)(NavBar);
 // export default NavBar;
