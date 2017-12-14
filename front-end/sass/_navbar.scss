@@ -24,7 +24,7 @@
 		position: absolute;
 		left: 20px;
 		width: 150px;
-		&:hover:{
+		&:hover{
 			color: black;
 			text-decoration: none;
 		}
@@ -33,7 +33,7 @@
 
 $menu_links: 8;
 @for $i from 0 to $menu_links{
-	.dropdown-link a:nth-child(#{$i}){
+	.dropdown-links a:nth-child(#{$i}){
 		top: 15 + ($i * 20)+px
 	}
 }
