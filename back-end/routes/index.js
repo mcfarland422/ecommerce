@@ -16,7 +16,7 @@ router.post('/login', (req, res, next)=>{
 	const email = req.body.email;
 	const password = req.body.password;
 
-	const checkLoginQuery = `SELECT * FROM users
+	const checkLoginQuery = `SELECT * FROM users 
 		INNER JOIN customers ON users.cid = customers.customerNumber
 		WHERE users.email = ?`;
 	connection.query(checkLoginQuery, [email], (error, results)=>{
@@ -50,7 +50,7 @@ router.post('/login', (req, res, next)=>{
 							msg: "loginSuccess",
 							token: newToken,
 							name: name
-						});
+						});						
 					}
 				})
 			}else{
@@ -58,7 +58,7 @@ router.post('/login', (req, res, next)=>{
 				// and rethink your life.
 				res.json({
 					msg: "wrongPassword"
-				})
+				}) 
 			}
 		}
 	})
@@ -96,7 +96,7 @@ router.post('/register', (req,res,next)=>{
 	const checkEmail = new Promise((resolve, reject) =>{
 		const checkEmailQuery = `SELECT * FROM users WHERE email = ?;`;
 		connection.query(checkEmailQuery,[userData.email],(error, results)=>{
-			if (error) {
+			if (error) { 
 				throw error; //for development
 				// reject(error) //in production
 			}else if(results.length > 0){
@@ -128,7 +128,7 @@ router.post('/register', (req,res,next)=>{
 				// Set up a random string for this user's token
 				// We will store it in teh DB
 				const token = randToken.uid(60);
-				// hashSync will create a blowfish/crypt (something evil)
+				// hashSync will create a blowfish/crypt (something evil) 
 				// hash we will insert into the DB
 				const hash = bcrypt.hashSync(userData.password);
 				console.log(newID);
@@ -175,7 +175,7 @@ router.get('/productlines/:productline/get',(req, res, next)=>{
 	const pl = req.params.productline
 	var plQuery = `SELECT * FROM productlines
 		INNER JOIN products ON productlines.productLine = products.productLine
-		WHERE productlines.productline = ?`
+		WHERE productlines.productline = ?` 
 	connection.query(plQuery,[pl],(error,results)=>{
 		if (error){
 			throw error //dev only
@@ -188,19 +188,45 @@ router.get('/productlines/:productline/get',(req, res, next)=>{
 router.post('/updateCart', (req, res, next)=>{
 	const productCode = req.body.productCode;
 	const userToken = req.body.userToken;
+	// FIRST... is this even a valid token?
 	const getUidQuery = `SELECT id from users WHERE token = ?;`;
-	connection.query(getUidQuery, [userToken],(error,results)=>{
+	connection.query(getUidQuery,[userToken],(error, results)=>{
 		if(error){
-			throw error;
+			throw error; //dev only
 		}else if(results.length === 0){
+			// THIS TOKEN IS BAD. USER IS CONFUSED OR A LIAR
 			res.json({
 				msg:"badToken"
 			});
 		}else{
-			this is a good token. I know who this is now.
+			// Get the user's id for the last query
+			const uid = results[0].id;
+			// this is a good token. I know who this is now. 
+			const addToCartQuery = `INSERT into cart (uid, productCode)
+				VALUES (?,?);`;
+			connection.query(addToCartQuery,[uid,productCode],(error)=>{
+				if(error){
+					throw error;
+				}else{
+					// the insert worked.
+					// get the sum of their products and their total
+					const getCartTotals = `SELECT SUM(buyPrice) as totalPrice, count(buyPrice) as totalItems 
+						FROM cart
+						INNER JOIN products ON products.productCode = cart.productCode
+						WHERE cart.uid = ?;`;
+					connection.query(getCartTotals,[uid],(error,cartResults)=>{
+						if(error){
+							throw error;
+						}else{
+							res.json(cartResults);
+						}
+					})
+				}
+			});
 		}
 	});
 
+	// res.json(req.body)
 });
 
 
