@@ -28,6 +28,7 @@ class ProductLines extends Component{
 		// console.log(this.props.pl)
 		console.log(this.state.productList);
 		const products = this.state.productList.map((product,index)=>{
+			console.log(product)
 			return (<div></div>)
 		})
 		var thisPL = this.props.pl.filter((obj)=>{
